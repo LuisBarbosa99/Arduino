@@ -16,17 +16,19 @@
 
 
    */ 
-#include <IRremote.h>
-#include <Time.h>
-#include <TimeLib.h>
-#include <LiquidCrystal_I2C.h>
-#include <SPI.h>
-#include <RFID.h>
-#include <Wire.h>
+#include <Time.h> //biblioteca para hora
+#include <TimeLib.h> //biblioteca para hora
+/* #include <LiquidCrystal_I2C.h> //biblioteca para Display LCD
+#include <Wire.h> //biblioteca para Display LCD
+#include <SPI.h> //biblioteca para RFID
+#include <RFID.h> //biblioteca para RFID
+#include <IRremote.h> //biblioteca para emissor e receptor IR
+ */
 
-#define SS_PIN 10
+/* #define SS_PIN 10
 #define RST_PIN 9
-LiquidCrystal_I2C lcd(0x27,16,2);
+LiquidCrystal_I2C lcd(0x27,16,2); */
+
 const int azul = 4; //azul: ar condicionado
 const int amarelo2 = 5; //amarelo2: referente ao projetor
 const int vermelho  = 6; //vermelho: a entrada esta bloqueada para este usuário
@@ -35,8 +37,8 @@ const int verde = 8; //verde : entrada liberada para o usuario
 int estado;
 int estadoLed = 0;
 String conteudo;
-int RECV_PIN = 3;
-unsigned long padrao = 1558001422 ; // data e hora em 16/05/2019 10:10 UTC
+//int RECV_PIN = 3;
+unsigned long padrao = 1558523078 ; // data e hora em 22/05/2019 11:04 UTC
 
 enum {
   turnOn,
@@ -48,16 +50,17 @@ enum {
 };
 
 
-IRrecv irrecv(RECV_PIN);  //cria o objeto receptor do IR
+/*IRrecv irrecv(RECV_PIN);  //cria o objeto receptor do IR
 decode_results results;   //identifica a entrada de IR e guarda o valor em results
-RFID RC522(SS_PIN, RST_PIN);
+RFID RC522(SS_PIN, RST_PIN); //cria o objeto receptor do RFID
+*/
 
 void setup() {
   Serial.begin(9600);
-  lcd.init();
+  /* lcd.init();
   lcd.backlight();
   SPI.begin();
-  RC522.init();
+  RC522.init(); */
   estado = turnOn;
   pinMode (vermelho,OUTPUT);
   pinMode (amarelo,OUTPUT);
@@ -65,15 +68,15 @@ void setup() {
   pinMode (amarelo2, OUTPUT);
   pinMode (azul, OUTPUT);
   setTime(padrao);
-  irrecv.enableIRIn();
+  //irrecv.enableIRIn();
   adjustTime(hour()-10800); //ajustando o fuso horário
 }
 void loop(){
   switch (estado)
   {
     case turnOn:
+      
       horario();
-      //onOff();
       break;
     case standby:
       mensagemInicial();
@@ -96,7 +99,8 @@ void loop(){
 
 
 void horario(){
-    if (hour()>8 && hour()<12 || hour()>14 && hour()<18){
+    
+    if (hour()>=8 && hour()<12 || hour()>=14 && hour()<18){
         estadoLed = HIGH;
         digitalWrite(amarelo,estadoLed);
         estado = standby;
@@ -107,30 +111,30 @@ void horario(){
     }
 }
  void mensagemInicial(){
-  lcd.init();
-  lcd.backlight();
-  lcd.clear();
+  Serial.println("Aproxime seu cartao do leitor");
+  /*lcd.clear();
   lcd.setCursor(1,0);
   lcd.print("Aproxime o seu");  
   Serial.println("aproxime o seu cartao");
   lcd.setCursor(0,1);
-  lcd.print("cartao do leitor");  
+  lcd.print("cartao do leitor");*/  
   delay(1000);
   estado = access;
 
 } 
 void permitido(){
+  Serial.println("Esperando cartao");
 if (conteudo.substring(1) == "8410552EEF") 
   {
     Serial.println("Ola Luis !");
     Serial.println();
     digitalWrite(verde,HIGH);
-    lcd.clear();
+    /*lcd.clear();
     lcd.setCursor(0,0);
     lcd.print("Ola Luis !");
     lcd.setCursor(0,1);
     lcd.print("Acesso liberado!");
-    delay(3000);
+    delay(3000);*/
     //estado = infraRed;
     
   }else estado = deny;
@@ -138,14 +142,14 @@ if (conteudo.substring(1) == "8410552EEF")
 }
 void infravermelho(){     
 
-String resultado;
+/*String resultado;
 
   if (irrecv.decode(&results)){   
   
     Serial.print("Valor lido foi: ");
-    Serial.println(results.value, HEX);
-    resultado = (results.value, HEX);
+    resultado = String(results.value, HEX);
     resultado.toUpperCase();  
+    Serial.println(resultado);
     
     if(resultado == "FFA25D"){      //para ligar o ar condicionado (tecla 1)
       digitalWrite(amarelo2, HIGH);
@@ -178,20 +182,21 @@ String resultado;
     }
   
   }
-  
+  */
 }
 void negado(){
+  Serial.println("Cartao negado");
   if (conteudo.substring(1) == "F483A2D50") 
   {
     Serial.println("Ola Cartao !");
     Serial.println();
     digitalWrite(vermelho,HIGH);
-    lcd.clear();
+    /*lcd.clear();
     lcd.setCursor(0,0);
     lcd.print("Ola Cartao !");
     lcd.setCursor(0,1);
     lcd.print("Acesso Negado !");
-    delay(3000);
+    delay(3000);*/
     digitalWrite(vermelho,LOW);
     digitalWrite(amarelo,HIGH);
     delay(1000);
@@ -199,7 +204,8 @@ void negado(){
   }
 }
 void acesso(){
-if (RC522.isCard()){
+  Serial.println("Acesso: em espera");
+/*if (RC522.isCard()){
   
   conteudo = "";
   RC522.readCardSerial();
@@ -212,6 +218,7 @@ if (RC522.isCard()){
     Serial.println(conteudo);  
   
 estado = allow;
-}delay (1000);
+}*/
+delay (1000);
 
 }
