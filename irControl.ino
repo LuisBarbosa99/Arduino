@@ -22,7 +22,7 @@ IRsend irsend;
 void setup()
 {
    
-  state = 3;
+  state = 2;
   estadoAr = LOW;
   estadoPrj = LOW;
 }
@@ -41,7 +41,7 @@ void ar(){
 
 void desligarProj(){
   if(estadoPrj==HIGH){
-    for(int i = 0; i<3;i++){ 
+    for(int i = 0; i<2;i++){ 
       irsend.sendRaw(prj,sizeof(prj)/sizeof(prj[0]),khz);
       delay(500);
     }  
@@ -56,7 +56,8 @@ void ligarProj(){
       estadoPrj = HIGH;
     delay(500);     
   }
-        
+  state = 3;
+  delay(2000);
 } 
 void loop() {
   switch(state){
