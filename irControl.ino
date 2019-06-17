@@ -5,7 +5,7 @@
 
 #include <IRremote.h>
 
-int onOff;
+
 int state;
 int estadoAr;
 int estadoPrj;
@@ -21,10 +21,10 @@ IRsend irsend;
   unsigned int prj[] = {8900,4400, 600,1700, 550,1650, 550,500, 600,550, 600,500, 600,500, 600,550, 600,1600, 600,1700, 550,500, 600,1650, 600,500, 600,1600, 600,550, 600,1600, 600,550, 600,500, 600,500, 600,500, 600,550, 600,1600, 600,550, 600,500, 600,1650, 600,1650, 550,1700, 550,1650, 550,1700, 550,500, 600,1650, 600,1650, 550,500, 600};
 void setup()
 {
-    onOff = 0;
-    state = 3;
-    estadoAr = LOW;
-    estadoPrj = LOW;
+   
+  state = 3;
+  estadoAr = LOW;
+  estadoPrj = LOW;
 }
 void ar(){
     
@@ -40,30 +40,33 @@ void ar(){
 }
 
 void desligarProj(){
- 
-        for(int i = 0; i<3;i++){
-            irsend.sendRaw(prj,sizeof(prj)/sizeof(prj[0]),khz);
-            delay(500);
-        }
-    
-    estadoPrj = LOW;
+  if(estadoPrj==HIGH){
+    for(int i = 0; i<3;i++){ 
+      irsend.sendRaw(prj,sizeof(prj)/sizeof(prj[0]),khz);
+      delay(500);
+    }  
+  estadoPrj = LOW;
+  
+  }
     
  }
 void ligarProj(){
-    
-        irsend.sendRaw(prj,sizeof(prj)/sizeof(prj[0]),khz);
-        estadoPrj = HIGH;
-        delay(500);
-}
+  if(estadoPrj==LOW){
+    irsend.sendRaw(prj,sizeof(prj)/sizeof(prj[0]),khz);
+      estadoPrj = HIGH;
+    delay(500);     
+  }
+        
+} 
 void loop() {
   switch(state){
-      case 1:
+    case 1:
       ar();
       break;
-      case 2:
+    case 2:
       ligarProj();
       break;
-      case 3:
+    case 3:
       desligarProj();
       break;
   }
