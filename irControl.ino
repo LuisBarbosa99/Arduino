@@ -28,24 +28,20 @@ void setup()
   
 }
 void ar(){
-    
-  if (estadoAr == HIGH){
-  irsend.sendRaw(desligaAr, sizeof(desligaAr) / sizeof(desligaAr[0]), khz); 
-  estadoAr = LOW;
-  delay(500);
-}else{
-  irsend.sendRaw(ligaAr,sizeof(ligaAr)/sizeof(ligaAr[0]),khz);
-  estadoAr == HIGH;
-  state = 2 //altera estado para que ligue o projetor após ligar o ar condicionado
-  delay(500);
-}
+  if(estadoAr==LOW){
+    irsend.sendRaw(ligaAr,sizeof(ligaAr)/sizeof(ligaAr[0]),khz);
+    estadoAr == HIGH;
+    state = 2 ;//altera estado para que ligue o projetor após ligar o ar condicionado
+    delay(2000);
+  }
 }
 
 void desligarProj(){ //função para desligar projetor
   if(estadoPrj==HIGH){
     for(int i = 0; i<2;i++){ 
       irsend.sendRaw(prj,sizeof(prj)/sizeof(prj[0]),khz);
-      delay(500);
+      delay(2000);
+      state = 4;
     }  
   estadoPrj = LOW;
   
@@ -56,11 +52,19 @@ void ligarProj(){
   if(estadoPrj==LOW){
     irsend.sendRaw(prj,sizeof(prj)/sizeof(prj[0]),khz); //envia codigo para ligar projetor 
     estadoPrj = HIGH;
-    delay(500);     
+    state = 3;
+    delay(15000);     
   }
   
   delay(2000);
-} 
+}
+void arOff(){
+  if(estadoAr==HIGH){
+    irsend.sendRaw(desligaAr, sizeof(desligaAr) / sizeof(desligaAr[0]), khz); 
+    estadoAr = LOW;
+    delay(500);
+  }
+}
 void loop() {
   switch(state){
     case 1:
@@ -72,8 +76,9 @@ void loop() {
     case 3:
       desligarProj();
       break;
+    case 4:
+      arOff();
+      break;
   }
-  while(state <4){
-    state++;
-  }
+  
 }
